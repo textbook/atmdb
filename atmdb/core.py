@@ -1,4 +1,4 @@
-"""Core API client class."""
+"""Core API wrapper functionality."""
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from urllib.parse import urlencode
@@ -75,15 +75,3 @@ class UrlParamMixin(TokenAuthMixin):
             params=params,
             url_params=url_params,
         )
-
-
-class TMDbClient(UrlParamMixin, Service):
-    """Simple wrapper for the `TMDb`_ API.
-
-    .. _TMDb: https://www.themoviedb.org/
-
-    """
-
-    AUTH_PARAM = 'api_key'
-
-    ROOT = 'https://api.themoviedb.org/3/'
