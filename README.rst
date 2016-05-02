@@ -1,6 +1,18 @@
 aTMDb
 =====
 
+.. image:: https://travis-ci.org/textbook/atmdb.svg?branch=master
+    :target: https://travis-ci.org/textbook/atmdb
+    :alt: Travis Build Status
+
+.. image:: https://coveralls.io/repos/github/textbook/atmdb/badge.svg?branch=master
+    :target: https://coveralls.io/github/textbook/atmdb?branch=master
+    :alt: Code Coverage
+
+.. image:: https://img.shields.io/badge/license-ISC-blue.svg
+    :target: https://github.com/textbook/atmdb/blob/master/LICENSE
+    :alt: ISC License
+
 Asynchronous API wrapper for `The Movie DB`_.
 
 Usage
@@ -18,6 +30,13 @@ You can then access the API by calling asynchronous helper methods on the
 
     movie = await client.get_movie(550)
     assert movie.title == 'Fight Club'
+
+Testing
+-------
+
+You can run the tests with ``python setup.py test``. To include the integration
+suite, ensure that the environment variable ``TMDB_API_TOKEN`` is set to a valid
+API token.
 
 .. _API FAQ:
     https://www.themoviedb.org/faq/api
