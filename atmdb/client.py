@@ -29,10 +29,13 @@ class TMDbClient(UrlParamMixin, Service):
           movie_id (:py:class:`int`): The movie's TMDb ID.
 
         """
-        url = self.url_builder('movie/{movie_id}', dict(movie_id=movie_id))
+        url, params = self.url_builder(
+            'movie/{movie_id}',
+            dict(movie_id=movie_id),
+        )
         logger.debug('making request to %r', url)
-        response = await aiohttp.get(url)
+        response = await aiohttp.get(url, params=params)
         if response.status != HTTPStatus.OK:
             return None
         body = await response.read()
-        return Movie.from_json(json.loads(body))
+        return Movie.from_json(json.loads(body.decode('utf-8')))

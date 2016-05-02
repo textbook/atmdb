@@ -1,7 +1,6 @@
 """Core API wrapper functionality."""
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
-from urllib.parse import urlencode
 
 
 class Service(metaclass=ABCMeta):
@@ -33,15 +32,14 @@ class Service(metaclass=ABCMeta):
           url_params: (:py:class:`dict`, optional): Parameters to add
             to the end of the URL (defaults to ``None``).
         Returns:
-          :py:class:`str`: The resulting URL.
+          :py:class:`tuple`: The resulting URL and parameter mapping.
         """
         if root is None:
             root = self.ROOT
         return ''.join([
             root,
             endpoint,
-            '?' + urlencode(url_params) if url_params else '',
-        ]).format(**params or {})
+        ]).format(**params or {}), url_params
 
 
 class TokenAuthMixin:
