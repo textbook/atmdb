@@ -5,6 +5,7 @@ from asynctest import mock
 import pytest
 
 from atmdb import TMDbClient
+from atmdb.models import Movie, Person
 
 TOKEN = 'some_api_token'
 
@@ -30,19 +31,48 @@ def test_client_auth(client):
 
 
 @pytest.mark.asyncio
-async def test_get_movie(client):
-    body = '{"original_title":"Test Movie"}'.encode('utf-8')
-    target = 'atmdb.client.aiohttp'
-    with mock.patch(target) as aiohttp:
+async def test_get_object():
+    with mock.patch('atmdb.client.aiohttp') as aiohttp:
         aiohttp.get.return_value = future_from(mock.MagicMock(
             status=HTTPStatus.OK,
-            **{'read.return_value': future_from(body)},
+            **{'read.return_value': future_from('{}'.encode('utf-8'))}
         ))
+        url = 'url'
+        params = {'some': 'params'}
+        cls = mock.Mock(**{'from_json.return_value': None})
 
-        movie = await client.get_movie(550)
+        result = await TMDbClient.get_object(url, params, cls)
+
+        cls.from_json.assert_called_once_with({})
+        aiohttp.get.assert_called_once_with(url, params=params)
+        assert result is None
+
+
+@pytest.mark.asyncio
+async def test_get_movie(client):
+    with mock.patch.object(TMDbClient, 'get_object') as get_object:
+        get_object.return_value = future_from(Movie('Test Movie'))
+
+        movie = await client.get_movie(123)
 
         assert movie.title == 'Test Movie'
-        aiohttp.get.assert_called_once_with(
-            'https://api.themoviedb.org/3/movie/550',
-            params=dict(api_key=TOKEN),
+        get_object.assert_called_once_with(
+            'https://api.themoviedb.org/3/movie/123',
+            dict(api_key=TOKEN, append_to_response='credits'),
+            Movie,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_person(client):
+    with mock.patch.object(TMDbClient, 'get_object') as get_object:
+        get_object.return_value = future_from(Person('Some Name'))
+
+        person = await client.get_person(123)
+
+        assert person.name == 'Some Name'
+        get_object.assert_called_once_with(
+            'https://api.themoviedb.org/3/person/123',
+            dict(api_key=TOKEN, append_to_response='movie_credits'),
+            Person,
         )
