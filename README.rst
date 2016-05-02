@@ -1,4 +1,4 @@
-atmbd
+aTMDb
 =====
 
 Asynchronous API wrapper for `The Movie DB`_.
