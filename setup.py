@@ -72,6 +72,7 @@ setup(
     packages=[PKG_NAME],
     platforms='any',
     tests_require=[
+        'asynctest',
         'pylint',
         'pytest',
         'pytest-asyncio',
