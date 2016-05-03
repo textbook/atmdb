@@ -2,10 +2,28 @@
 
 
 class BaseModel:
-    """Base TMDb model functionality."""
+    """Base TMDb model functionality.
 
-    JSON_MAPPING = {}
+    Arguments:
+      id_ (:py:class:`int`): The TMDb ID of the object.
+
+    """
+
+    JSON_MAPPING = dict(id_='id')
     """:py:class:`dict`: The mapping between JSON keys and attributes."""
+
+    def __init__(self, id_):
+        self.id_ = id_
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and self.id_ == other.id_
+
+    def __repr__(self):
+        return '{}({})'.format(
+            self.__class__.__name__,
+            ', '.join(['{}={!r}'.format(attr, getattr(self, attr))
+                       for attr in self.JSON_MAPPING]),
+        )
 
     @classmethod
     def from_json(cls, json):
@@ -22,10 +40,6 @@ class BaseModel:
             attr: json.get(key) for attr, key in cls.JSON_MAPPING.items()
         })
 
-    def __eq__(self, other):
-        return all(getattr(other, name, None) == getattr(self, name)
-                   for name in self.JSON_MAPPING)
-
 
 class Movie(BaseModel):
     """Represents a movie.
@@ -36,9 +50,14 @@ class Movie(BaseModel):
 
     """
 
-    JSON_MAPPING = dict(cast='cast', title='original_title')
+    JSON_MAPPING = dict(
+        cast='cast',
+        title='original_title',
+        **BaseModel.JSON_MAPPING,
+    )
 
-    def __init__(self, title, cast=None):
+    def __init__(self, *, title, cast=None, **kwargs):
+        super().__init__(**kwargs)
         self.title = title
         self.cast = cast
 
@@ -61,9 +80,14 @@ class Person(BaseModel):
 
     """
 
-    JSON_MAPPING = dict(movie_credits='movie_credits', name='name')
+    JSON_MAPPING = dict(
+        movie_credits='movie_credits',
+        name='name',
+        **BaseModel.JSON_MAPPING,
+    )
 
-    def __init__(self, name, movie_credits=None):
+    def __init__(self, name, movie_credits=None, **kwargs):
+        super().__init__(**kwargs)
         self.name = name
         self.movie_credits = movie_credits
 

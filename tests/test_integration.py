@@ -22,5 +22,3 @@ if token is not None:
     async def test_person_integration(client):
         person = await client.get_person(287)
         assert person.name == 'Brad Pitt'
-
-

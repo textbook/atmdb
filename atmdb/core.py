@@ -1,4 +1,10 @@
-"""Core API wrapper functionality."""
+"""Core API wrapper functionality, adapted from `flash_services`_.
+
+.. _flash_services:
+    https://pypi.python.org/pypi/flash-services
+
+"""
+# pylint: disable=too-few-public-methods
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 

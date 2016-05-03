@@ -9,6 +9,10 @@ aTMDb
     :target: https://coveralls.io/github/textbook/atmdb?branch=master
     :alt: Code Coverage
 
+.. image:: https://www.quantifiedcode.com/api/v1/project/370d26a2062c4b148534b576ea0fc11b/badge.svg
+    :target: https://www.quantifiedcode.com/app/project/370d26a2062c4b148534b576ea0fc11b
+    :alt: Code Issues
+
 .. image:: https://img.shields.io/badge/license-ISC-blue.svg
     :target: https://github.com/textbook/atmdb/blob/master/LICENSE
     :alt: ISC License
