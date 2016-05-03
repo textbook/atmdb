@@ -1,6 +1,6 @@
-"""Core API wrapper functionality, adapted from `flash_services`_.
+"""Core API wrapper functionality, adapted from `Flash Services`_.
 
-.. _flash_services:
+.. _Flash Services:
     https://pypi.python.org/pypi/flash-services
 
 """
@@ -24,11 +24,17 @@ class Service(metaclass=ABCMeta):
 
     @property
     def headers(self):
-        """Get the headers for the service requests."""
+        """Get the headers for the service requests.
+
+        Returns:
+          :py:class:`dict`: The header mapping.
+
+        """
         return {}
 
     def url_builder(self, endpoint, *, root=None, params=None, url_params=None):
         """Create a URL for the specified endpoint.
+
         Arguments:
           endpoint (:py:class:`str`): The API endpoint to access.
           root: (:py:class:`str`, optional): The root URL for the
@@ -37,8 +43,10 @@ class Service(metaclass=ABCMeta):
             into the created URL (defaults to ``None``).
           url_params: (:py:class:`dict`, optional): Parameters to add
             to the end of the URL (defaults to ``None``).
+
         Returns:
           :py:class:`tuple`: The resulting URL and parameter mapping.
+
         """
         if root is None:
             root = self.ROOT

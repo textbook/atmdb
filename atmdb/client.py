@@ -25,7 +25,7 @@ class TMDbClient(UrlParamMixin, Service):
 
     @staticmethod
     async def get_object(url, params, cls):
-        """Get an object from the TMDb API.
+        """Get an object from the TMDb API via :py:func:`aiohttp.get`.
 
         Arguments:
           url (:py:class:`str`): The endpoint URL.
@@ -33,7 +33,7 @@ class TMDbClient(UrlParamMixin, Service):
           cls (:py:class:`type`): The type of object to return.
 
         Returns:
-          :py:class:`BaseModel`: An instance of the required ``cls``.
+          :py:class:`~.BaseModel`: An instance of the required ``cls``.
 
         """
         logger.debug('making request to %r', url)
@@ -50,7 +50,7 @@ class TMDbClient(UrlParamMixin, Service):
           movie_id (:py:class:`int`): The movie's TMDb ID.
 
         Returns:
-          :py:class:`Movie`: The requested movie.
+          :py:class:`~.Movie`: The requested movie.
 
         """
         url, params = self.url_builder(
@@ -67,7 +67,7 @@ class TMDbClient(UrlParamMixin, Service):
           person_id (:py:class:`int`): The person's TMDb ID.
 
         Returns:
-          :py:class:`Person`: The requested person.
+          :py:class:`~.Person`: The requested person.
 
         """
         url, params = self.url_builder(
