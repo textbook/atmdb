@@ -5,6 +5,7 @@ def test_base_model():
     model = BaseModel.from_json(dict(id=1))
     assert model == BaseModel(id_=1)
     assert repr(model) == 'BaseModel(id_=1)'
+    assert hash(model) == hash(1)
 
 
 def test_movie_model():

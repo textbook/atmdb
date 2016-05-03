@@ -18,6 +18,9 @@ class BaseModel:
     def __eq__(self, other):
         return isinstance(other, type(self)) and self.id_ == other.id_
 
+    def __hash__(self):
+        return hash(self.id_)
+
     def __repr__(self):
         return '{}({})'.format(
             self.__class__.__name__,
