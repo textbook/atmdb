@@ -1,6 +1,10 @@
 aTMDb
 =====
 
+.. image:: https://img.shields.io/pypi/v/atmdb.svg
+    :target: https://pypi.python.org/pypi/atmdb
+    :alt: PyPI Version
+
 .. image:: https://travis-ci.org/textbook/atmdb.svg?branch=master
     :target: https://travis-ci.org/textbook/atmdb
     :alt: Travis Build Status
@@ -17,10 +21,14 @@ aTMDb
     :target: https://github.com/textbook/atmdb/blob/master/LICENSE
     :alt: ISC License
 
-Asynchronous API wrapper for `The Movie DB`_.
+Asynchronous API wrapper for `TMDb`_.
 
 Usage
 -----
+
+``atmdb`` can be installed from `PyPI`_ using ``pip``::
+
+    pip install atmdb
 
 The core ``TMDbClient`` must be instantiated with a valid API token (see the
 `API FAQ`_ for more information)::
@@ -35,6 +43,11 @@ You can then access the API by calling asynchronous helper methods on the
     movie = await client.get_movie(550)
     assert movie.title == 'Fight Club'
 
+Documentation
+-------------
+
+Documentation is available on `PythonHosted`_.
+
 Testing
 -------
 
@@ -44,5 +57,9 @@ API token.
 
 .. _API FAQ:
     https://www.themoviedb.org/faq/api
-.. _The Movie DB:
+.. _PyPI:
+    https://pypi.python.org/pypi/atmdb
+.. _PythonHosted:
+    https://pythonhosted.org/atmdb/
+.. _TMDb:
     https://www.themoviedb.org/
