@@ -27,7 +27,7 @@ def test_movie_model_from_json():
         ),
     ))
     assert movie.title == title
-    assert movie.cast == [Person(id_=1, name=name)]
+    assert movie.cast == {Person(id_=1, name=name)}
 
 
 def test_person_model():
@@ -49,7 +49,7 @@ def test_person_model_from_json():
         )
     ))
     assert person.name == name
-    assert person.movie_credits == [Movie(id_=1, title=title)]
+    assert person.movie_credits == {Movie(id_=1, title=title)}
 
 
 def test_movie_model_contains_person():

@@ -80,10 +80,10 @@ class Movie(BaseModel):
 
     @classmethod
     def from_json(cls, json):
-        json['cast'] = [
+        json['cast'] = {
             Person.from_json(person) for person in
             json.get('credits', {}).get('cast', [])
-        ] or None
+        } or None
         return super().from_json(json)
 
 
@@ -112,8 +112,8 @@ class Person(BaseModel):
 
     @classmethod
     def from_json(cls, json):
-        json['movie_credits'] = [
+        json['movie_credits'] = {
             Movie.from_json(movie) for movie in
             json.get('movie_credits', {}).get('cast', [])
-        ] or None
+        } or None
         return super().from_json(json)
