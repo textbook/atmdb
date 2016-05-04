@@ -44,6 +44,7 @@ class PyTest(TestCommand):
         self.test_args = [
             '--pylint',
             '--pylint-error-types=FEW',
+            '--runslow',
         ]
         self.test_suite = True
 
