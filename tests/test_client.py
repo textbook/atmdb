@@ -5,7 +5,6 @@ from asynctest import mock
 import pytest
 
 from atmdb import TMDbClient
-from atmdb.models import BaseModel, Movie, Person
 
 TOKEN = 'some_api_token'
 
@@ -39,14 +38,11 @@ async def test_get_object():
         ))
         url = 'url'
         params = {'some': 'params'}
-        response = {'some': 'output'}
-        cls = mock.Mock(**{'from_json.return_value': response})
 
-        result = await TMDbClient.get_object(url, params, cls)
+        result = await TMDbClient.get_data(url, params)
 
-        cls.from_json.assert_called_once_with({})
         aiohttp.get.assert_called_once_with(url, params=params)
-        assert result == response
+        assert result == {}
 
 
 @pytest.mark.asyncio
@@ -55,7 +51,7 @@ async def test_get_no_object():
         aiohttp.get.return_value = future_from(mock.MagicMock(
             status=HTTPStatus.NOT_FOUND,
         ))
-        result = await TMDbClient.get_object('', {}, BaseModel)
+        result = await TMDbClient.get_data('', {})
 
         aiohttp.get.assert_called_once_with('', params={})
         assert result is None
@@ -63,23 +59,22 @@ async def test_get_no_object():
 
 @pytest.mark.asyncio
 async def test_get_movie(client):
-    with mock.patch.object(TMDbClient, 'get_object') as get_object:
-        get_object.return_value = future_from(Movie(id_=1, title='Test Movie'))
+    with mock.patch.object(TMDbClient, 'get_data') as get_data:
+        get_data.return_value = future_from(dict(id=1, original_title='Test Movie'))
 
         movie = await client.get_movie(123)
 
         assert movie.title == 'Test Movie'
-        get_object.assert_called_once_with(
+        get_data.assert_called_once_with(
             'https://api.themoviedb.org/3/movie/123',
             dict(api_key=TOKEN, append_to_response='credits'),
-            Movie,
         )
 
 
 @pytest.mark.asyncio
 async def test_get_person(client):
-    with mock.patch.object(TMDbClient, 'get_object') as get_object:
-        get_object.return_value = future_from(Person(id_=1, name='Some Name'))
+    with mock.patch.object(TMDbClient, 'get_data') as get_object:
+        get_object.return_value = future_from(dict(id=1, name='Some Name'))
 
         person = await client.get_person(123)
 
@@ -87,5 +82,10 @@ async def test_get_person(client):
         get_object.assert_called_once_with(
             'https://api.themoviedb.org/3/person/123',
             dict(api_key=TOKEN, append_to_response='movie_credits'),
-            Person,
         )
+
+#
+# @pytest.mark.asyncio
+# async def test_find_person(client):
+#     with mock.patch.object(TMDbClient, 'get_data') as get_data:
+#         get_data.return_value = future_from(Person(id_=1, name='Some Name'))

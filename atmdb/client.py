@@ -24,16 +24,15 @@ class TMDbClient(UrlParamMixin, Service):
     ROOT = 'https://api.themoviedb.org/3/'
 
     @staticmethod
-    async def get_object(url, params, cls):
-        """Get an object from the TMDb API via :py:func:`aiohttp.get`.
+    async def get_data(url, params):
+        """Get data from the TMDb API via :py:func:`aiohttp.get`.
 
         Arguments:
           url (:py:class:`str`): The endpoint URL.
           params (:py:class:`dict`): URL parameter mapping.
-          cls (:py:class:`type`): The type of object to return.
 
         Returns:
-          :py:class:`~.BaseModel`: An instance of the required ``cls``.
+          :py:class:`dict`: The parsed JSON result.
 
         """
         logger.debug('making request to %r', url)
@@ -41,7 +40,7 @@ class TMDbClient(UrlParamMixin, Service):
         if response.status != HTTPStatus.OK:
             return None
         body = await response.read()
-        return cls.from_json(json.loads(body.decode('utf-8')))
+        return json.loads(body.decode('utf-8'))
 
     async def get_movie(self, movie_id):
         """Retrieve movie data by ID.
@@ -58,7 +57,7 @@ class TMDbClient(UrlParamMixin, Service):
             dict(movie_id=movie_id),
             url_params=OrderedDict(append_to_response='credits'),
         )
-        return await self.get_object(url, params, Movie)
+        return Movie.from_json(await self.get_data(url, params))
 
     async def get_person(self, person_id):
         """Retrieve person data by ID.
@@ -75,4 +74,4 @@ class TMDbClient(UrlParamMixin, Service):
             dict(person_id=person_id),
             url_params=OrderedDict(append_to_response='movie_credits'),
         )
-        return await self.get_object(url, params, Person)
+        return Person.from_json(await self.get_data(url, params))
