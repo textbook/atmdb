@@ -29,3 +29,10 @@ if token is not None:
     async def test_person_integration(client):
         person = await client.get_person(287)
         assert person.name == 'Brad Pitt'
+
+
+    @slow
+    @pytest.mark.asyncio
+    async def test_person_search_integration(client):
+        people = await client.find_person('brad')
+        assert any(person.name == 'Brad Pitt' for person in people)

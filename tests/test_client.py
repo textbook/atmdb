@@ -84,8 +84,18 @@ async def test_get_person(client):
             dict(api_key=TOKEN, append_to_response='movie_credits'),
         )
 
-#
-# @pytest.mark.asyncio
-# async def test_find_person(client):
-#     with mock.patch.object(TMDbClient, 'get_data') as get_data:
-#         get_data.return_value = future_from(Person(id_=1, name='Some Name'))
+
+@pytest.mark.asyncio
+async def test_find_person(client):
+    with mock.patch.object(TMDbClient, 'get_data') as get_data:
+        get_data.return_value = future_from({
+            'results': [{'id': 1, 'name': 'Some Person'}],
+        })
+
+        result = await client.find_person('some person')
+
+        assert result[0].name == 'Some Person'
+        get_data.assert_called_once_with(
+            'https://api.themoviedb.org/3/search/person',
+            dict(api_key=TOKEN, include_adult=False, query='some%20person')
+        )

@@ -3,6 +3,7 @@ from collections import OrderedDict
 from http import HTTPStatus
 import json
 import logging
+from urllib.parse import quote
 
 import aiohttp
 
@@ -41,6 +42,26 @@ class TMDbClient(UrlParamMixin, Service):
             return None
         body = await response.read()
         return json.loads(body.decode('utf-8'))
+
+    async def find_person(self, query):
+        """Retrieve person data by search query.
+
+        Arguments:
+          query (:py:class:`str`): Query to search for.
+
+        Returns:
+          :py:class:`list`: Possible matches.
+
+        """
+        url, params = self.url_builder(
+            'search/person',
+            dict(),
+            url_params=OrderedDict([
+                ('query', quote(query)), ('include_adult', False)
+            ]),
+        )
+        data = await self.get_data(url, params)
+        return [Person.from_json(item) for item in data.get('results', [])]
 
     async def get_movie(self, movie_id):
         """Retrieve movie data by ID.
