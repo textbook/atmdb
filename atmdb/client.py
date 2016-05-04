@@ -25,7 +25,7 @@ class TMDbClient(UrlParamMixin, Service):
     ROOT = 'https://api.themoviedb.org/3/'
 
     @staticmethod
-    async def get_data(url, params):
+    async def _get_data(url, params):
         """Get data from the TMDb API via :py:func:`aiohttp.get`.
 
         Arguments:
@@ -58,7 +58,7 @@ class TMDbClient(UrlParamMixin, Service):
             ('query', quote(query)), ('include_adult', False),
         ])
         url, params = self.url_builder('search/movie', {}, params)
-        data = await self.get_data(url, params)
+        data = await self._get_data(url, params)
         return [Movie.from_json(item) for item in data.get('results', [])]
 
     async def find_person(self, query):
@@ -78,7 +78,7 @@ class TMDbClient(UrlParamMixin, Service):
                 ('query', quote(query)), ('include_adult', False)
             ]),
         )
-        data = await self.get_data(url, params)
+        data = await self._get_data(url, params)
         return [Person.from_json(item) for item in data.get('results', [])]
 
     async def get_movie(self, movie_id):
@@ -96,7 +96,7 @@ class TMDbClient(UrlParamMixin, Service):
             dict(movie_id=movie_id),
             url_params=OrderedDict(append_to_response='credits'),
         )
-        return Movie.from_json(await self.get_data(url, params))
+        return Movie.from_json(await self._get_data(url, params))
 
     async def get_person(self, person_id):
         """Retrieve person data by ID.
@@ -113,4 +113,4 @@ class TMDbClient(UrlParamMixin, Service):
             dict(person_id=person_id),
             url_params=OrderedDict(append_to_response='movie_credits'),
         )
-        return Person.from_json(await self.get_data(url, params))
+        return Person.from_json(await self._get_data(url, params))
