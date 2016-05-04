@@ -50,3 +50,15 @@ def test_person_model_from_json():
     ))
     assert person.name == name
     assert person.movie_credits == [Movie(id_=1, title=title)]
+
+
+def test_movie_model_contains_person():
+    star = Person(id_=2, name='')
+    movie = Movie(id_=1, title='', cast=[star])
+    assert star in movie
+
+
+def test_person_model_contains_movie():
+    movie = Movie(id_=1, title='')
+    star = Person(id_=2, name='', movie_credits=[movie])
+    assert movie in star

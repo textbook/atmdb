@@ -9,11 +9,23 @@ class BaseModel:
 
     """
 
+    CONTAINS = None
+    """:py:class:`dict`: Rules for what the model contains."""
+
     JSON_MAPPING = dict(id_='id')
     """:py:class:`dict`: The mapping between JSON keys and attributes."""
 
     def __init__(self, id_):
         self.id_ = id_
+
+    def __contains__(self, item):
+        if self.CONTAINS is None:
+            return False
+        attr = self.CONTAINS['attr']
+        subclasses = {obj.__name__: obj for obj in
+                      BaseModel.__subclasses__()}  # pylint: disable=no-member
+        cls = subclasses[self.CONTAINS['type']]
+        return isinstance(item, cls) and item in getattr(self, attr)
 
     def __eq__(self, other):
         return isinstance(other, type(self)) and self.id_ == other.id_
@@ -53,6 +65,8 @@ class Movie(BaseModel):
 
     """
 
+    CONTAINS = dict(attr='cast', type='Person')
+
     JSON_MAPPING = dict(
         cast='cast',
         title='original_title',
@@ -82,6 +96,8 @@ class Person(BaseModel):
         credits.
 
     """
+
+    CONTAINS = dict(attr='movie_credits', type='Movie')
 
     JSON_MAPPING = dict(
         movie_credits='movie_credits',
