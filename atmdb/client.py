@@ -37,11 +37,12 @@ class TMDbClient(UrlParamMixin, Service):
 
         """
         logger.debug('making request to %r', url)
-        response = await aiohttp.get(url, params=params)
-        if response.status != HTTPStatus.OK:
-            return None
-        body = await response.read()
-        return json.loads(body.decode('utf-8'))
+        with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                if response.status != HTTPStatus.OK:
+                    return None
+                body = await response.read()
+                return json.loads(body.decode('utf-8'))
 
     async def find_movie(self, query):
         """Retrieve movie data by search query.
@@ -53,13 +54,10 @@ class TMDbClient(UrlParamMixin, Service):
           :py:class:`list`: Possible matches.
 
         """
-        url, params = self.url_builder(
-            'search/movie',
-            dict(),
-            url_params=OrderedDict([
-                ('query', quote(query)), ('include_adult', False)
-            ]),
-        )
+        params = OrderedDict([
+            ('query', quote(query)), ('include_adult', False),
+        ])
+        url, params = self.url_builder('search/movie', {}, params)
         data = await self.get_data(url, params)
         return [Movie.from_json(item) for item in data.get('results', [])]
 
