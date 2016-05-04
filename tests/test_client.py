@@ -72,6 +72,23 @@ async def test_get_movie(client):
 
 
 @pytest.mark.asyncio
+async def test_find_movie(client):
+    with mock.patch.object(TMDbClient, 'get_data') as get_data:
+        get_data.return_value = future_from({
+            'results': [{'id': 1, 'original_title': 'Test Movie'}],
+        })
+
+        result = await client.find_movie('test movie')
+
+        assert result[0].title == 'Test Movie'
+        get_data.assert_called_once_with(
+            'https://api.themoviedb.org/3/search/movie',
+            dict(api_key=TOKEN, include_adult=False, query='test%20movie')
+        )
+
+
+
+@pytest.mark.asyncio
 async def test_get_person(client):
     with mock.patch.object(TMDbClient, 'get_data') as get_object:
         get_object.return_value = future_from(dict(id=1, name='Some Name'))

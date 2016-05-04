@@ -26,6 +26,13 @@ if token is not None:
 
     @slow
     @pytest.mark.asyncio
+    async def test_movie_search_integration(client):
+        movies = await client.find_movie('fight club')
+        assert any(movie.title == 'Fight Club' for movie in movies)
+
+
+    @slow
+    @pytest.mark.asyncio
     async def test_person_integration(client):
         person = await client.get_person(287)
         assert person.name == 'Brad Pitt'
