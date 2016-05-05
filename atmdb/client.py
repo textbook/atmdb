@@ -40,10 +40,15 @@ class TMDbClient(UrlParamMixin, Service):
         logger.debug('making request to %r', url)
         with aiohttp.ClientSession() as session:
             async with session.get(url, headers=self.headers) as response:
+                body = json.loads((await response.read()).decode('utf-8'))
                 if response.status != HTTPStatus.OK:
+                    logger.warning(
+                        'request failed %s: %r',
+                        response.status,
+                        body.get('status_message', '<no message>')
+                    )
                     return
-                body = await response.read()
-                return json.loads(body.decode('utf-8'))
+                return body
 
     async def find_movie(self, query):
         """Retrieve movie data by search query.
@@ -61,7 +66,6 @@ class TMDbClient(UrlParamMixin, Service):
         url = self.url_builder('search/movie', {}, params)
         data = await self._get_data(url)
         if data is None:
-            logger.warning('find_movie failed')
             return
         return [Movie.from_json(item) for item in data.get('results', [])]
 
@@ -84,7 +88,6 @@ class TMDbClient(UrlParamMixin, Service):
         )
         data = await self._get_data(url)
         if data is None:
-            logger.warning('find_person failed')
             return
         return [Person.from_json(item) for item in data.get('results', [])]
 
@@ -105,7 +108,6 @@ class TMDbClient(UrlParamMixin, Service):
         )
         data = await self._get_data(url)
         if data is None:
-            logger.warning('get_movie failed')
             return
         return Movie.from_json(data)
 
@@ -126,6 +128,5 @@ class TMDbClient(UrlParamMixin, Service):
         )
         data = await self._get_data(url)
         if data is None:
-            logger.warning('get_person failed')
             return
         return Person.from_json(data)
