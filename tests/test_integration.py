@@ -19,10 +19,16 @@ if token is not None:
 
     @slow
     @pytest.mark.asyncio
+    async def test_missing_data_integration():
+        broken_client = TMDbClient(api_token='badtoken')
+        result = await broken_client.get_movie(1)
+        assert result is None
+
+    @slow
+    @pytest.mark.asyncio
     async def test_movie_integration(client):
         movie = await client.get_movie(550)
         assert movie.title == 'Fight Club'
-
 
     @slow
     @pytest.mark.asyncio
@@ -30,13 +36,11 @@ if token is not None:
         movies = await client.find_movie('fight club')
         assert any(movie.title == 'Fight Club' for movie in movies)
 
-
     @slow
     @pytest.mark.asyncio
     async def test_person_integration(client):
         person = await client.get_person(287)
         assert person.name == 'Brad Pitt'
-
 
     @slow
     @pytest.mark.asyncio

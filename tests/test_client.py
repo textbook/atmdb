@@ -24,8 +24,8 @@ def test_client_instantiation(client):
 
 
 def test_client_auth(client):
-    expected = 'https://api.themoviedb.org/3/endpoint'
-    assert client.url_builder('endpoint') == (expected, dict(api_key=TOKEN))
+    expected = 'https://api.themoviedb.org/3/endpoint?api_key={}'.format(TOKEN)
+    assert client.url_builder('endpoint') == expected
 
 
 @pytest.mark.asyncio
@@ -37,8 +37,8 @@ async def test_get_movie(client):
 
         assert movie.title == 'Test Movie'
         _get_data.assert_called_once_with(
-            'https://api.themoviedb.org/3/movie/123',
-            dict(api_key=TOKEN, append_to_response='credits'),
+            'https://api.themoviedb.org/3/movie/123'
+            '?append_to_response=credits&api_key={}'.format(TOKEN),
         )
 
 
@@ -53,8 +53,8 @@ async def test_find_movie(client):
 
         assert result[0].title == 'Test Movie'
         _get_data.assert_called_once_with(
-            'https://api.themoviedb.org/3/search/movie',
-            dict(api_key=TOKEN, include_adult=False, query='test%20movie')
+            'https://api.themoviedb.org/3/search/movie'
+            '?query=test+movie&include_adult=False&api_key={}'.format(TOKEN),
         )
 
 
@@ -68,8 +68,8 @@ async def test_get_person(client):
 
         assert person.name == 'Some Name'
         _get_data.assert_called_once_with(
-            'https://api.themoviedb.org/3/person/123',
-            dict(api_key=TOKEN, append_to_response='movie_credits'),
+            'https://api.themoviedb.org/3/person/123'
+            '?append_to_response=movie_credits&api_key={}'.format(TOKEN),
         )
 
 
@@ -84,6 +84,6 @@ async def test_find_person(client):
 
         assert result[0].name == 'Some Person'
         _get_data.assert_called_once_with(
-            'https://api.themoviedb.org/3/search/person',
-            dict(api_key=TOKEN, include_adult=False, query='some%20person')
+            'https://api.themoviedb.org/3/search/person'
+            '?query=some+person&include_adult=False&api_key={}'.format(TOKEN),
         )

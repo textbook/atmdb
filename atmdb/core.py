@@ -7,6 +7,7 @@
 # pylint: disable=too-few-public-methods
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
+from urllib.parse import urlencode
 
 
 class Service(metaclass=ABCMeta):
@@ -45,7 +46,7 @@ class Service(metaclass=ABCMeta):
             to the end of the URL (defaults to ``None``).
 
         Returns:
-          :py:class:`tuple`: The resulting URL and parameter mapping.
+          :py:class:`str`: The resulting URL.
 
         """
         if root is None:
@@ -53,7 +54,8 @@ class Service(metaclass=ABCMeta):
         return ''.join([
             root,
             endpoint,
-        ]).format(**params or {}), url_params
+            '?' + urlencode(url_params) if url_params else '',
+        ]).format(**params or {})
 
 
 class TokenAuthMixin:
