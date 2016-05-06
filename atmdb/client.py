@@ -56,6 +56,9 @@ class TMDbClient(UrlParamMixin, Service):
     async def _get_data(self, url):
         """Get data from the TMDb API via :py:func:`aiohttp.get`.
 
+        Notes:
+          Updates configuration (if required) on successful requests.
+
         Arguments:
           url (:py:class:`str`): The endpoint URL and params.
 
@@ -63,13 +66,13 @@ class TMDbClient(UrlParamMixin, Service):
           :py:class:`dict`: The parsed JSON result.
 
         """
-        if url != self.url_builder('configuration'):
-            await self.update_config()
         logger.debug('making request to %r', url)
         with aiohttp.ClientSession() as session:
             async with session.get(url, headers=self.headers) as response:
                 body = json.loads((await response.read()).decode('utf-8'))
                 if response.status == HTTPStatus.OK:
+                    if url != self.url_builder('configuration'):
+                        await self.update_config()
                     return body
                 elif response.status == HTTPStatus.TOO_MANY_REQUESTS:
                     timeout = self.calculate_timeout(response.headers)
