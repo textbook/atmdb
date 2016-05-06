@@ -1,6 +1,7 @@
 """API client wrapper."""
 import asyncio
 from collections import OrderedDict
+from datetime import datetime, timedelta
 from http import HTTPStatus
 import json
 import logging
@@ -24,9 +25,33 @@ class TMDbClient(UrlParamMixin, Service):
 
     ROOT = 'https://api.themoviedb.org/3/'
 
+    def __init__(self, *, api_token, **kwargs):
+        super().__init__(api_token=api_token, **kwargs)
+        self.config = dict(data=None, last_update=None)
+
     @property
     def headers(self):
         return dict(Accept='application/json', **super().headers)
+
+    @property
+    def config_expired(self):
+        """Whether the configuration data has expired."""
+        return (self.config['last_update'] + timedelta(days=2)) < datetime.now()
+
+    async def update_config(self):
+        """Update configuration data if required.
+
+        Notes:
+          Per `the documentation`_, this updates the API configuration
+          data *"every few days"*.
+
+        .. _the documentation:
+          http://docs.themoviedb.apiary.io/#reference/configuration
+
+        """
+        if self.config['data'] is None or self.config_expired:
+            data = await self._get_data(self.url_builder('configuration'))
+            self.config = dict(data=data, last_update=datetime.now())
 
     async def _get_data(self, url):
         """Get data from the TMDb API via :py:func:`aiohttp.get`.
@@ -38,6 +63,8 @@ class TMDbClient(UrlParamMixin, Service):
           :py:class:`dict`: The parsed JSON result.
 
         """
+        if url != self.url_builder('configuration'):
+            await self.update_config()
         logger.debug('making request to %r', url)
         with aiohttp.ClientSession() as session:
             async with session.get(url, headers=self.headers) as response:

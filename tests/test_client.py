@@ -98,3 +98,50 @@ def test_calculate_timeout_http_date():
     http_date = '%a, %d %b %Y %H:%M:%S %Z'
     headers = {'Retry-After': three_minutes_later.strftime(http_date)}
     assert 179 <= TMDbClient.calculate_timeout(headers) <= 181
+
+
+@pytest.mark.asyncio
+async def test_update_config_missing(client):
+    with mock.patch.object(TMDbClient, '_get_data') as _get_data:
+        data = {'some': 'data'}
+        _get_data.return_value = future_from(data)
+
+        await client.update_config()
+
+        assert client.config.get('data') == data
+        assert isinstance(client.config.get('last_update'), datetime)
+        _get_data.assert_called_once_with(
+            'https://api.themoviedb.org/3/configuration?api_key={}'.format(TOKEN)
+        )
+
+
+@pytest.mark.asyncio
+async def test_update_config_outdated(client):
+    with mock.patch.object(TMDbClient, '_get_data') as _get_data:
+        data = {'some': 'data'}
+        _get_data.return_value = future_from(data)
+        last_week = datetime.now() - timedelta(days=7)
+        client.config = dict(data={}, last_update=last_week)
+
+        await client.update_config()
+
+        assert client.config.get('data') == data
+        assert isinstance(client.config.get('last_update'), datetime)
+        assert client.config.get('last_update') != last_week
+        _get_data.assert_called_once_with(
+            'https://api.themoviedb.org/3/configuration?api_key={}'.format(TOKEN)
+        )
+
+
+@pytest.mark.asyncio
+async def test_update_config_up_to_date(client):
+    with mock.patch.object(TMDbClient, '_get_data') as _get_data:
+        data = {'some': 'data'}
+        now = datetime.now()
+        client.config = dict(data=data, last_update=now)
+
+        await client.update_config()
+
+        assert client.config.get('data') == data
+        assert client.config.get('last_update') == now
+        _get_data.assert_not_called()
