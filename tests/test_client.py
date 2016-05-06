@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timedelta, timezone
 
 from asynctest import mock
 import pytest
@@ -58,7 +59,6 @@ async def test_find_movie(client):
         )
 
 
-
 @pytest.mark.asyncio
 async def test_get_person(client):
     with mock.patch.object(TMDbClient, '_get_data') as _get_data:
@@ -87,3 +87,14 @@ async def test_find_person(client):
             'https://api.themoviedb.org/3/search/person'
             '?query=some+person&include_adult=False&api_key={}'.format(TOKEN),
         )
+
+
+def test_calculate_timeout_delta_seconds():
+    assert TMDbClient.calculate_timeout({'Retry-After': '120'}) == 120
+
+
+def test_calculate_timeout_http_date():
+    three_minutes_later = datetime.now(tz=timezone.utc) + timedelta(minutes=3)
+    http_date = '%a, %d %b %Y %H:%M:%S %Z'
+    headers = {'Retry-After': three_minutes_later.strftime(http_date)}
+    assert 179 <= TMDbClient.calculate_timeout(headers) <= 181

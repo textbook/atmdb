@@ -1,4 +1,5 @@
 """API client wrapper."""
+import asyncio
 from collections import OrderedDict
 from http import HTTPStatus
 import json
@@ -41,14 +42,21 @@ class TMDbClient(UrlParamMixin, Service):
         with aiohttp.ClientSession() as session:
             async with session.get(url, headers=self.headers) as response:
                 body = json.loads((await response.read()).decode('utf-8'))
-                if response.status != HTTPStatus.OK:
-                    logger.warning(
-                        'request failed %s: %r',
-                        response.status,
-                        body.get('status_message', '<no message>')
+                if response.status == HTTPStatus.OK:
+                    return body
+                elif response.status == HTTPStatus.TOO_MANY_REQUESTS:
+                    timeout = self.calculate_timeout(response.headers)
+                    logger.info(
+                        'Request limit exceeded, waiting %s seconds',
+                        timeout,
                     )
-                    return
-                return body
+                    await asyncio.sleep(timeout)
+                    return await self._get_data(url)
+                logger.warning(
+                    'request failed %s: %r',
+                    response.status,
+                    body.get('status_message', '<no message>')
+                )
 
     async def find_movie(self, query):
         """Retrieve movie data by search query.

@@ -7,7 +7,10 @@
 # pylint: disable=too-few-public-methods
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
+from datetime import datetime, timezone
 from urllib.parse import urlencode
+
+from dateutil.parser import parse
 
 
 class Service(metaclass=ABCMeta):
@@ -56,6 +59,31 @@ class Service(metaclass=ABCMeta):
             endpoint,
             '?' + urlencode(url_params) if url_params else '',
         ]).format(**params or {})
+
+    @staticmethod
+    def calculate_timeout(headers):
+        """Extract request timeout from ``Retry-After`` header.
+
+        Notes:
+          Per :rfc:`2616#section-14.37`, the ``Retry-After`` header can
+          be either an integer number of seconds or an HTTP date. This
+          function can handle either.
+
+        Arguments:
+          headers (:py:class:`aiohttp.CIMultiDictProxy`): The response
+            headers.
+
+        Returns:
+          :py:class:`int`: The timeout, in seconds.
+
+        """
+        after = headers['Retry-After']
+        try:
+            return int(after)
+        except ValueError:
+            date_after = parse(after)
+        utc_now = datetime.now(tz=timezone.utc)
+        return int((date_after - utc_now).total_seconds())
 
 
 class TokenAuthMixin:
