@@ -69,14 +69,16 @@ class Movie(BaseModel):
 
     JSON_MAPPING = dict(
         cast='cast',
+        poster='poster',
         title='original_title',
         **BaseModel.JSON_MAPPING,
     )
 
-    def __init__(self, *, title, cast=None, **kwargs):
+    def __init__(self, *, title, cast=None, poster=None, **kwargs):
         super().__init__(**kwargs)
         self.title = title
         self.cast = cast
+        self.poster = poster
 
     @classmethod
     def from_json(cls, json):
@@ -102,13 +104,15 @@ class Person(BaseModel):
     JSON_MAPPING = dict(
         movie_credits='movie_credits',
         name='name',
+        profile='profile',
         **BaseModel.JSON_MAPPING,
     )
 
-    def __init__(self, name, movie_credits=None, **kwargs):
+    def __init__(self, name, movie_credits=None, profile=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.movie_credits = movie_credits
+        self.profile = profile
 
     @classmethod
     def from_json(cls, json):

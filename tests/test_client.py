@@ -6,6 +6,18 @@ import pytest
 
 from atmdb import TMDbClient
 
+CONFIG = dict(
+    data=dict(
+        change_keys=[],
+        images=dict(
+            poster_sizes=['w92', 'w154', 'w185', 'w342', 'w500', 'w780', 'original'],
+            profile_sizes=['w45', 'w185', 'h632', 'original'],
+            secure_base_url='https://image.tmdb.org/t/p/',
+        ),
+    ),
+    last_update=datetime.now(),
+)
+
 TOKEN = 'some_api_token'
 
 
@@ -17,7 +29,9 @@ def future_from(result):
 
 @pytest.fixture
 def client():
-    return TMDbClient(api_token=TOKEN)
+    instance = TMDbClient(api_token=TOKEN)
+    instance.config = CONFIG
+    return instance
 
 
 def test_client_instantiation(client):
@@ -103,6 +117,7 @@ def test_calculate_timeout_http_date():
 @pytest.mark.asyncio
 async def test_update_config_missing(client):
     with mock.patch.object(TMDbClient, '_get_data') as _get_data:
+        client.config = dict(data=None, last_update=None)
         data = {'some': 'data'}
         _get_data.return_value = future_from(data)
 
@@ -136,12 +151,34 @@ async def test_update_config_outdated(client):
 @pytest.mark.asyncio
 async def test_update_config_up_to_date(client):
     with mock.patch.object(TMDbClient, '_get_data') as _get_data:
-        data = {'some': 'data'}
-        now = datetime.now()
-        client.config = dict(data=data, last_update=now)
-
         await client.update_config()
 
-        assert client.config.get('data') == data
-        assert client.config.get('last_update') == now
+        assert client.config == CONFIG
         _get_data.assert_not_called()
+
+
+def test_create_image_url(client):
+    assert client._create_image_url(
+        '/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg',
+        'poster',
+        500,
+    ) == 'https://image.tmdb.org/t/p/w500/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg'
+
+
+def test_create_image_url_no_config(client):
+    client.config = dict(data=None, last_update=None)
+    assert client._create_image_url('foo', 'bar', 123) is None
+
+
+@pytest.mark.parametrize('type_,target,expected', [
+    ('poster', 300, 'w342'),
+    ('poster', 500, 'w500'),
+    ('profile', 300, 'w185'),
+    ('profile', 500, 'h632'),
+])
+def test_image_size(type_, target, expected):
+    assert TMDbClient._image_size(
+        CONFIG['data']['images'],
+        type_,
+        target,
+    ) == expected

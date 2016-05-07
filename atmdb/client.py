@@ -147,6 +147,10 @@ class TMDbClient(UrlParamMixin, Service):
         data = await self._get_data(url)
         if data is None:
             return
+        if 'poster_path' in data:
+            data['poster'] = self._create_image_url(
+                data['poster_path'], 'poster', 200,
+            )
         return Movie.from_json(data)
 
     async def get_person(self, person_id):
@@ -167,4 +171,50 @@ class TMDbClient(UrlParamMixin, Service):
         data = await self._get_data(url)
         if data is None:
             return
+        if 'profile_path' in data:
+            data['profile'] = self._create_image_url(
+                data['profile_path'], 'profile', 200,
+            )
         return Person.from_json(data)
+
+    def _create_image_url(self, file_path, type_, target_size):
+        """The the closest available size for specified image type.
+
+        Arguments:
+          file_path (:py:class:`str`): The image file path.
+          type_ (:py:class:`str`): The type of image to create a URL
+            for, (``'poster'`` or ``'profile'``).
+          target_size (:py:class:`int`): The size of image to aim for (used
+            as either width or height).
+
+        """
+        try:
+            # pylint: disable=unsubscriptable-object
+            image_config = self.config['data']['images']
+        except (AttributeError, TypeError):
+            logger.warning('no image configuration available')
+            return
+        return ''.join([
+            image_config['secure_base_url'],
+            self._image_size(image_config, type_, target_size),
+            file_path,
+        ])
+
+    @staticmethod
+    def _image_size(image_config, type_, target_size):
+        """Find the closest available size for specified image type.
+
+        Arguments:
+          image_config (:py:class:`dict`): The image config data.
+          type_ (:py:class:`str`): The type of image to create a URL
+            for, (``'poster'`` or ``'profile'``).
+          target_size (:py:class:`int`): The size of image to aim for (used
+            as either width or height).
+
+        """
+        return min(
+            image_config['{}_sizes'.format(type_)],
+            key=lambda size: (abs(target_size - int(size[1:]))
+                              if size.startswith('w') or size.startswith('h')
+                              else 999),
+        )
