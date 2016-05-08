@@ -38,7 +38,7 @@ class TMDbClient(UrlParamMixin, Service):
         """Whether the configuration data has expired."""
         return (self.config['last_update'] + timedelta(days=2)) < datetime.now()
 
-    async def update_config(self):
+    async def _update_config(self):
         """Update configuration data if required.
 
         Notes:
@@ -50,10 +50,10 @@ class TMDbClient(UrlParamMixin, Service):
 
         """
         if self.config['data'] is None or self.config_expired:
-            data = await self._get_data(self.url_builder('configuration'))
+            data = await self.get_data(self.url_builder('configuration'))
             self.config = dict(data=data, last_update=datetime.now())
 
-    async def _get_data(self, url):
+    async def get_data(self, url):
         """Get data from the TMDb API via :py:func:`aiohttp.get`.
 
         Notes:
@@ -72,7 +72,7 @@ class TMDbClient(UrlParamMixin, Service):
                 body = json.loads((await response.read()).decode('utf-8'))
                 if response.status == HTTPStatus.OK:
                     if url != self.url_builder('configuration'):
-                        await self.update_config()
+                        await self._update_config()
                     return body
                 elif response.status == HTTPStatus.TOO_MANY_REQUESTS:
                     timeout = self.calculate_timeout(response.headers)
@@ -81,7 +81,7 @@ class TMDbClient(UrlParamMixin, Service):
                         timeout,
                     )
                     await asyncio.sleep(timeout)
-                    return await self._get_data(url)
+                    return await self.get_data(url)
                 logger.warning(
                     'request failed %s: %r',
                     response.status,
@@ -102,7 +102,7 @@ class TMDbClient(UrlParamMixin, Service):
             ('query', query), ('include_adult', False),
         ])
         url = self.url_builder('search/movie', {}, params)
-        data = await self._get_data(url)
+        data = await self.get_data(url)
         if data is None:
             return
         return [Movie.from_json(item) for item in data.get('results', [])]
@@ -124,7 +124,7 @@ class TMDbClient(UrlParamMixin, Service):
                 ('query', query), ('include_adult', False)
             ]),
         )
-        data = await self._get_data(url)
+        data = await self.get_data(url)
         if data is None:
             return
         return [Person.from_json(item) for item in data.get('results', [])]
@@ -144,7 +144,7 @@ class TMDbClient(UrlParamMixin, Service):
             dict(movie_id=movie_id),
             url_params=OrderedDict(append_to_response='credits'),
         )
-        data = await self._get_data(url)
+        data = await self.get_data(url)
         if data is None:
             return
         if 'poster_path' in data:
@@ -168,7 +168,7 @@ class TMDbClient(UrlParamMixin, Service):
             dict(person_id=person_id),
             url_params=OrderedDict(append_to_response='movie_credits'),
         )
-        data = await self._get_data(url)
+        data = await self.get_data(url)
         if data is None:
             return
         if 'profile_path' in data:
