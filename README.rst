@@ -26,7 +26,7 @@ Asynchronous API wrapper for `TMDb`_.
 Compatibility
 -------------
 
-aTMDb uses asyncio_ with the ``async`` and ``await`` syntax, so is only
+aTMDb uses `asyncio`_ with the ``async`` and ``await`` syntax, so is only
 compatible with Python versions 3.5 and above.
 
 Installation
@@ -77,6 +77,8 @@ Additional documentation is available on `PythonHosted`_.
 
 .. _API FAQ:
     https://www.themoviedb.org/faq/api
+.. _asyncio:
+    http://aiohttp.readthedocs.io/
 .. _PyPI:
     https://pypi.python.org/pypi/atmdb
 .. _PythonHosted:
