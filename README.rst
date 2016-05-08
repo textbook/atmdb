@@ -59,6 +59,17 @@ You can then access the API by calling asynchronous helper methods on the
     movie = await client.get_movie(550)
     assert movie.title == 'Fight Club'
 
+Any API endpoints not currently exposed via the helper methods can be accessed
+by using the ``url_builder`` and ``get_data`` methods directly, for example::
+
+    url = client.url_builder('company/{company_id}', dict(company_id=508))
+                           # ^ endpoint            # ^ parameters to insert
+    company = await client.get_data(url)
+    assert company.get('name') == 'Regency Enterprises'
+
+Note that, if you aren't using a helper method, the result is just a vanilla
+dictionary.
+
 Documentation
 -------------
 
