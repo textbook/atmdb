@@ -23,12 +23,28 @@ aTMDb
 
 Asynchronous API wrapper for `TMDb`_.
 
-Usage
------
+Compatibility
+-------------
+
+aTMDb uses asyncio_ with the ``async`` and ``await`` syntax, so is only
+compatible with Python versions 3.5 and above.
+
+Installation
+------------
 
 ``atmdb`` can be installed from `PyPI`_ using ``pip``::
 
     pip install atmdb
+
+Testing
+-------
+
+You can run the tests with ``python setup.py test``. To include the integration
+suite, ensure that the environment variable ``TMDB_API_TOKEN`` is set to a valid
+API token, and use ``--runslow`` if running ``py.test`` directly.
+
+Usage
+-----
 
 The core ``TMDbClient`` must be instantiated with a valid API token (see the
 `API FAQ`_ for more information)::
@@ -46,14 +62,7 @@ You can then access the API by calling asynchronous helper methods on the
 Documentation
 -------------
 
-Documentation is available on `PythonHosted`_.
-
-Testing
--------
-
-You can run the tests with ``python setup.py test``. To include the integration
-suite, ensure that the environment variable ``TMDB_API_TOKEN`` is set to a valid
-API token.
+Additional documentation is available on `PythonHosted`_.
 
 .. _API FAQ:
     https://www.themoviedb.org/faq/api
