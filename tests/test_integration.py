@@ -30,7 +30,7 @@ if token is not None and pytest.config.getoption('--runslow'):
     async def test_movie_integration(client):
         movie = await client.get_movie(550)
         assert movie.title == 'Fight Club'
-        assert movie.poster == 'https://image.tmdb.org/t/p/w185/811DjJTon9gD6hZ8nCjSitaIXFQ.jpg'
+        assert movie.image_url == 'https://image.tmdb.org/t/p/w185/811DjJTon9gD6hZ8nCjSitaIXFQ.jpg'
 
     @pytest.mark.asyncio
     async def test_movie_search_integration(client):
@@ -41,7 +41,7 @@ if token is not None and pytest.config.getoption('--runslow'):
     async def test_person_integration(client):
         person = await client.get_person(287)
         assert person.name == 'Brad Pitt'
-        assert person.profile == 'https://image.tmdb.org/t/p/w185/kc3M04QQAuZ9woUvH3Ju5T7ZqG5.jpg'
+        assert person.image_url == 'https://image.tmdb.org/t/p/w185/kc3M04QQAuZ9woUvH3Ju5T7ZqG5.jpg'
 
     @pytest.mark.asyncio
     async def test_person_search_integration(client):

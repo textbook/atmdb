@@ -49,30 +49,3 @@ async def test_update_config_up_to_date(client, config):
 
         assert client.config == config
         _get_data.assert_not_called()
-
-
-def test_create_image_url(client):
-    assert client._create_image_url(
-        '/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg',
-        'poster',
-        500,
-    ) == 'https://image.tmdb.org/t/p/w500/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg'
-
-
-def test_create_image_url_no_config(client):
-    client.config = dict(data=None, last_update=None)
-    assert client._create_image_url('foo', 'bar', 123) is None
-
-
-@pytest.mark.parametrize('type_,target,expected', [
-    ('poster', 300, 'w342'),
-    ('poster', 500, 'w500'),
-    ('profile', 300, 'w185'),
-    ('profile', 500, 'h632'),
-])
-def test_image_size(config, type_, target, expected):
-    assert TMDbClient._image_size(
-        config['data']['images'],
-        type_,
-        target,
-    ) == expected
