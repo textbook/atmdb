@@ -35,3 +35,11 @@ atmdb.models module
     :members:
     :undoc-members:
     :show-inheritance:
+
+atmdb.utils module
+------------------
+
+.. automodule:: atmdb.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:

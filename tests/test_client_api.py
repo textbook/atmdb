@@ -64,7 +64,7 @@ async def test_get_data_too_many_requests(client):
 async def test_get_data_other_error(client):
     with mock.patch('atmdb.client.aiohttp.ClientSession', SimpleSessionMock) as session:
         session.configure_mock(side_effect=[
-            dict(code=HTTPStatus.NOT_FOUND, body=dict(status_message='')),
+            dict(code=HTTPStatus.NOT_FOUND, body=dict(status_message='testing error handling')),
         ])
 
         data = await client.get_data('dummy_url')

@@ -3,6 +3,7 @@ from os import getenv
 import pytest
 
 from atmdb import TMDbClient
+from atmdb.utils import find_overlapping_actors, find_overlapping_movies
 
 token = getenv('TMDB_API_TOKEN', None)
 
@@ -47,3 +48,20 @@ if token is not None and pytest.config.getoption('--runslow'):
     async def test_person_search_integration(client):
         people = await client.find_person('brad')
         assert any(person.name == 'Brad Pitt' for person in people)
+
+    @pytest.mark.asyncio
+    async def test_find_overlapping_movies_integration(client):
+        overlap = await find_overlapping_movies(
+            ['john cleese', 'terry gilliam', 'connie booth'],
+            client,
+        )
+        expected = 'and now for something completely different'
+        assert any(expected in movie.title.lower() for movie in overlap)
+
+    @pytest.mark.asyncio
+    async def test_find_overlapping_actors_integration(client):
+        overlap = await find_overlapping_actors(
+            ['monty python holy grail', 'meaning of life'],
+            client,
+        )
+        assert any(person.name == 'Eric Idle' for person in overlap)

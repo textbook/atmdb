@@ -76,7 +76,7 @@ class TMDbClient(UrlParamMixin, Service):
                     return body
                 elif response.status == HTTPStatus.TOO_MANY_REQUESTS:
                     timeout = self.calculate_timeout(response.headers)
-                    logger.info(
+                    logger.warning(
                         'Request limit exceeded, waiting %s seconds',
                         timeout,
                     )
@@ -135,11 +135,11 @@ class TMDbClient(UrlParamMixin, Service):
             for item in data.get('results', [])
         ]
 
-    async def get_movie(self, movie_id):
+    async def get_movie(self, id_):
         """Retrieve movie data by ID.
 
         Arguments:
-          movie_id (:py:class:`int`): The movie's TMDb ID.
+          id_ (:py:class:`int`): The movie's TMDb ID.
 
         Returns:
           :py:class:`~.Movie`: The requested movie.
@@ -147,7 +147,7 @@ class TMDbClient(UrlParamMixin, Service):
         """
         url = self.url_builder(
             'movie/{movie_id}',
-            dict(movie_id=movie_id),
+            dict(movie_id=id_),
             url_params=OrderedDict(append_to_response='credits'),
         )
         data = await self.get_data(url)
@@ -155,11 +155,11 @@ class TMDbClient(UrlParamMixin, Service):
             return
         return Movie.from_json(data, self.config['data'].get('images'))
 
-    async def get_person(self, person_id):
+    async def get_person(self, id_):
         """Retrieve person data by ID.
 
         Arguments:
-          person_id (:py:class:`int`): The person's TMDb ID.
+          id_ (:py:class:`int`): The person's TMDb ID.
 
         Returns:
           :py:class:`~.Person`: The requested person.
@@ -167,7 +167,7 @@ class TMDbClient(UrlParamMixin, Service):
         """
         url = self.url_builder(
             'person/{person_id}',
-            dict(person_id=person_id),
+            dict(person_id=id_),
             url_params=OrderedDict(append_to_response='movie_credits'),
         )
         data = await self.get_data(url)

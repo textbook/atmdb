@@ -46,6 +46,9 @@ API token, and use ``--runslow`` if running ``py.test`` directly.
 Usage
 -----
 
+Client
+......
+
 The core ``TMDbClient`` must be instantiated with a valid API token (see the
 `API FAQ`_ for more information)::
 
@@ -69,6 +72,21 @@ by using the ``url_builder`` and ``get_data`` methods directly, for example::
 
 Note that, if you aren't using a helper method, the result is just a vanilla
 dictionary.
+
+Utilities
+.........
+
+aTMDb also exposes utilities for working with the API and models at a higher
+level of abstraction, for example::
+
+    from aTMDb import TMDbClient
+    from aTMDb.utils import find_overlapping_actors
+
+    actors = await find_overlapping_actors(
+        ['monty python holy grail', 'meaning of life'],
+        TMDbClient(api_token='<insert your token here>'),
+    )
+    assert any(person.name == 'Eric Idle' for person in overlap)
 
 Documentation
 -------------

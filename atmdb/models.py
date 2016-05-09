@@ -118,7 +118,7 @@ class Movie(BaseModel):
 
     Arguments:
       title (:py:class:`str`): The title of the movie.
-      cast (:py:class:`list`, optional): The movie's cast.
+      cast (:py:class:`set`, optional): The movie's cast.
 
     """
 
@@ -154,7 +154,7 @@ class Person(BaseModel):
 
     Arguments:
       name (:py:class:`str`): The person's name.
-      movie_credits (:py:class:`list`, optional): The person's movie
+      movie_credits (:py:class:`set`, optional): The person's movie
         credits.
 
     """
