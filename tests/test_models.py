@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 from atmdb.models import Movie, Person
 
 
@@ -55,3 +57,39 @@ def test_person_model_contains_movie():
     movie = Movie(id_=1, title='')
     star = Person(id_=2, name='', movie_credits=[movie])
     assert movie in star
+
+
+def test_movie_model_full_str():
+    movie = Movie(id_=123, title='Test Movie', synopsis='Just some movie.')
+    assert str(movie) == dedent("""
+    *Test Movie*
+
+    Just some movie.
+
+    For more information see: https://www.themoviedb.org/movie/123
+    """).strip()
+
+
+def test_person_model_full_str():
+    movie = Person(id_=123, name='Some Person', biography='An actor, I guess.')
+    assert str(movie) == dedent("""
+    *Some Person*
+
+    An actor, I guess.
+
+    For more information see: https://www.themoviedb.org/person/123
+    """).strip()
+
+
+def test_movie_model_short_str():
+    movie = Movie(id_=123, title='Test Movie')
+    assert str(movie) == dedent("""
+    Test Movie [https://www.themoviedb.org/movie/123]
+    """).strip()
+
+
+def test_person_model_short_str():
+    movie = Person(id_=123, name='Some Person')
+    assert str(movie) == dedent("""
+    Some Person [https://www.themoviedb.org/person/123]
+    """).strip()

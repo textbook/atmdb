@@ -1,5 +1,6 @@
 """Models representing TMDb resources."""
 import logging
+from textwrap import dedent
 
 logger = logging.getLogger(__name__)
 
@@ -8,8 +9,8 @@ class BaseModel:
     """Base TMDb model functionality.
 
     Arguments:
-      image_config (:py:class:`dict`): The API image configuration.
       id_ (:py:class:`int`): The TMDb ID of the object.
+      image_config (:py:class:`dict`): The API image configuration.
 
     """
 
@@ -119,6 +120,7 @@ class Movie(BaseModel):
     Arguments:
       title (:py:class:`str`): The title of the movie.
       cast (:py:class:`set`, optional): The movie's cast.
+      synopsis (:py:class:`str`, optional): A synopsis of the movie.
 
     """
 
@@ -129,16 +131,33 @@ class Movie(BaseModel):
     JSON_MAPPING = dict(
         cast='cast',
         image_path='{}_path'.format(IMAGE_TYPE),
-        poster='poster',
+        synopsis='overview',
         title='original_title',
         **BaseModel.JSON_MAPPING,
     )
 
-    def __init__(self, *, title, cast=None, poster=None, **kwargs):
+    def __init__(self, *, title, cast=None, poster=None, synopsis=None,
+                 **kwargs):
         super().__init__(**kwargs)
-        self.title = title
         self.cast = cast
         self.poster = poster
+        self.synopsis = synopsis
+        self.title = title
+
+    def __str__(self):
+        if self.synopsis is None:
+            return "{0.title} [{0.url}]".format(self)
+        return dedent("""
+        *{0.title}*
+
+        {0.synopsis}
+
+        For more information see: {0.url}
+        """).strip().format(self)
+
+    @property
+    def url(self):
+        return 'https://www.themoviedb.org/movie/{}'.format(self.id_)
 
     @classmethod
     def from_json(cls, json, image_config=None):
@@ -156,6 +175,7 @@ class Person(BaseModel):
       name (:py:class:`str`): The person's name.
       movie_credits (:py:class:`set`, optional): The person's movie
         credits.
+      biography (:py:class:`str`, optional): A synopsis of the movie.
 
     """
 
@@ -164,18 +184,35 @@ class Person(BaseModel):
     IMAGE_TYPE = 'profile'
 
     JSON_MAPPING = dict(
+        biography='biography',
         image_path='{}_path'.format(IMAGE_TYPE),
         movie_credits='movie_credits',
         name='name',
-        profile='profile',
         **BaseModel.JSON_MAPPING,
     )
 
-    def __init__(self, name, movie_credits=None, profile=None, **kwargs):
+    def __init__(self, name, biography=None, movie_credits=None, profile=None,
+                 **kwargs):
         super().__init__(**kwargs)
-        self.name = name
+        self.biography = biography
         self.movie_credits = movie_credits
+        self.name = name
         self.profile = profile
+
+    def __str__(self):
+        if self.biography is None:
+            return "{0.name} [{0.url}]".format(self)
+        return dedent("""
+        *{0.name}*
+
+        {0.biography}
+
+        For more information see: {0.url}
+        """).strip().format(self)
+
+    @property
+    def url(self):
+        return 'https://www.themoviedb.org/person/{}'.format(self.id_)
 
     @classmethod
     def from_json(cls, json, image_config=None):
