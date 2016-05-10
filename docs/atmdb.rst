@@ -1,43 +1,37 @@
-atmdb package
+aTMDb package
 =============
-
-Module contents
----------------
 
 .. automodule:: atmdb
     :members:
     :undoc-members:
     :show-inheritance:
 
-Submodules
-----------
-
-atmdb.client module
--------------------
+``client`` module
+-----------------
 
 .. automodule:: atmdb.client
     :members:
     :undoc-members:
     :show-inheritance:
 
-atmdb.core module
------------------
+``core`` module
+---------------
 
 .. automodule:: atmdb.core
     :members:
     :undoc-members:
     :show-inheritance:
 
-atmdb.models module
--------------------
+``models`` module
+-----------------
 
 .. automodule:: atmdb.models
     :members:
     :undoc-members:
     :show-inheritance:
 
-atmdb.utils module
-------------------
+``utils`` module
+----------------
 
 .. automodule:: atmdb.utils
     :members:
