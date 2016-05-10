@@ -25,7 +25,9 @@ class TMDbClient(UrlParamMixin, Service):
 
     ROOT = 'https://api.themoviedb.org/3/'
 
-    def __init__(self, *, api_token, **kwargs):
+    TOKEN_ENV_VAR = 'TMDB_API_TOKEN'
+
+    def __init__(self, *, api_token=None, **kwargs):
         super().__init__(api_token=api_token, **kwargs)
         self.config = dict(data=None, last_update=None)
 

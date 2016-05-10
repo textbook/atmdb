@@ -8,6 +8,7 @@
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from datetime import datetime, timezone
+from os import getenv
 from urllib.parse import urlencode
 
 from dateutil.parser import parse
@@ -94,18 +95,28 @@ class TokenAuthMixin:
 
     """
 
+    TOKEN_ENV_VAR = None
+    """:py:class:`str`: The environment variable holding the token."""
+
     def __init__(self, *, api_token, **kwargs):
         self.api_token = api_token
         super().__init__(**kwargs)
 
+    @classmethod
+    def from_env(cls):
+        """Create a service instance from an environment variable."""
+        token = getenv(cls.TOKEN_ENV_VAR)
+        if token is None:
+            msg = 'missing environment variable: {!r}'.format(cls.TOKEN_ENV_VAR)
+            raise ValueError(msg)
+        return cls(api_token=token)
+
 
 class UrlParamMixin(TokenAuthMixin):
-    """Mix-in class for implementing URL parameter authentication.
+    """Mix-in class for implementing URL parameter authentication."""
 
-    Attributes:
-      AUTH_PARAM (:py:class:`str`): The name of the URL parameter to
-        supply the token as.
-    """
+    AUTH_PARAM = None
+    """:py:class:`str`: The name of the URL parameter."""
 
     def url_builder(self, endpoint, params=None, url_params=None):
         """Add authentication URL parameter."""

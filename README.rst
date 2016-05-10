@@ -50,11 +50,15 @@ Client
 ......
 
 The core ``TMDbClient`` must be instantiated with a valid API token (see the
-`API FAQ`_ for more information)::
+`API FAQ`_ for more information), either directly::
 
     from atmdb import TMDbClient
 
     client = TMDbClient(api_token='<insert your token here>')
+
+or as the ``TMDB_API_TOKEN`` environment variable::
+
+    client = TMDbClient.from_env()
 
 You can then access the API by calling asynchronous helper methods on the
 ``client`` instance::

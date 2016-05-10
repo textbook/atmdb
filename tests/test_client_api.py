@@ -13,6 +13,16 @@ def test_client_instantiation(client, token):
     assert client.api_token == token
 
 
+@mock.patch('atmdb.core.getenv')
+def test_client_from_env(getenv, token):
+    getenv.return_value = token
+
+    client = TMDbClient.from_env()
+
+    assert client.api_token == token
+    getenv.assert_called_once_with(TMDbClient.TOKEN_ENV_VAR)
+
+
 def test_client_auth(client, token):
     expected = 'https://api.themoviedb.org/3/endpoint?api_key={}'.format(token)
     assert client.url_builder('endpoint') == expected
