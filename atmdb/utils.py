@@ -116,8 +116,6 @@ async def _find_overlap(queries, client, find_method, get_method,
       overlap_function (:py:class:`collections.abc.Callable`): The
         function to call for the resulting overlap.
 
-
-
     """
     results = []
     for query in queries:
