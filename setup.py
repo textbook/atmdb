@@ -66,7 +66,7 @@ setup(
     ],
     cmdclass={'test': PyTest},
     description=description,
-    install_requires=['aiohttp', 'dateutil'],
+    install_requires=['aiohttp', 'python-dateutil'],
     license='License :: OSI Approved :: ISC License (ISCL)',
     long_description=long_description,
     name=PKG_NAME,
