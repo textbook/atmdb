@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from http import HTTPStatus
 import json
 import logging
+import random
 
 import aiohttp
 
@@ -178,3 +179,67 @@ class TMDbClient(UrlParamMixin, Service):
         if data is None:
             return
         return Person.from_json(data, self.config['data'].get('images'))
+
+    async def get_random_popular_person(self, limit=500):
+        """Randomly select a popular person.
+
+        Notes:
+          May require two API calls if the randomly-selected index
+          isn't within the first page of required data.
+
+        Arguments:
+          limit (:py:class:`int`, optional): How many of the most
+            popular people to make random choice from (defaults to top
+            ``500``).
+
+        Returns:
+          :py:class:`~.Person`: A randomly-selected popular person.
+
+        """
+        index = random.randrange(limit)
+        data = await self._get_popular_people_page()
+        if data is None:
+            return
+        if index >= len(data['results']):
+            # result is not on first page
+            page, index = self._calculate_page_index(index, data)
+            data = await self._get_popular_people_page(page)
+        if data is None:
+            return
+        return Person.from_json(
+            data['results'][index],
+            self.config['data'].get('images'),
+        )
+
+    async def _get_popular_people_page(self, page=1):
+        """Get a specific page of popular person data.
+
+        Arguments:
+          page (:py:class:`int`, optional): The page to get.
+
+        Returns:
+          :py:class:`dict`: The page data.
+
+        """
+        return await self.get_data(self.url_builder(
+            'person/popular',
+            url_params=OrderedDict(page=page),
+        ))
+
+    @staticmethod
+    def _calculate_page_index(index, data):
+        """Determine the location of a given index in paged data.
+
+        Arguments:
+          index (:py:class:`int`): The overall index.
+          data: (:py:class:`dict`) The first page of data.
+
+        Returns:
+          :py:class:`tuple`: The location of that index, in the format
+            ``(page, index_in_page)``.
+
+        """
+        if index > data['total_results']:
+            raise ValueError('index not in paged data')
+        page_length = len(data['results'])
+        return (index // page_length) + 1, (index % page_length) - 1

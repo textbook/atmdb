@@ -49,3 +49,18 @@ async def test_update_config_up_to_date(client, config):
 
         assert client.config == config
         _get_data.assert_not_called()
+
+
+def test_calculate_page_unavailable(client):
+    with pytest.raises(ValueError):
+        client._calculate_page_index(1, dict(total_results=0))
+
+
+def test_calculate_page(client):
+    data = dict(
+        page=1,
+        results=[{}] * 20,
+        total_pages=3,
+        total_results=50,
+    )
+    assert client._calculate_page_index(25, data) == (2, 4)

@@ -91,7 +91,8 @@ class BaseModel:
         """
         cls.image_config = image_config
         return cls(**{
-            attr: json.get(key) for attr, key in cls.JSON_MAPPING.items()
+            attr: json.get(attr if key is None else key)
+            for attr, key in cls.JSON_MAPPING.items()
         })
 
     @staticmethod
@@ -129,7 +130,7 @@ class Movie(BaseModel):
     IMAGE_TYPE = 'poster'
 
     JSON_MAPPING = dict(
-        cast='cast',
+        cast=None,
         image_path='{}_path'.format(IMAGE_TYPE),
         synopsis='overview',
         title='original_title',
@@ -162,7 +163,7 @@ class Movie(BaseModel):
     @classmethod
     def from_json(cls, json, image_config=None):
         json['cast'] = {
-            Person.from_json(person) for person in
+            Person.from_json(person, image_config) for person in
             json.get('credits', {}).get('cast', [])
         } or None
         return super().from_json(json, image_config)
@@ -184,20 +185,22 @@ class Person(BaseModel):
     IMAGE_TYPE = 'profile'
 
     JSON_MAPPING = dict(
-        biography='biography',
+        biography=None,
         image_path='{}_path'.format(IMAGE_TYPE),
-        movie_credits='movie_credits',
-        name='name',
+        movie_credits=None,
+        known_for=None,
+        name=None,
         **BaseModel.JSON_MAPPING,
     )
 
     def __init__(self, name, biography=None, movie_credits=None, profile=None,
-                 **kwargs):
+                 known_for=None, **kwargs):
         super().__init__(**kwargs)
         self.biography = biography
         self.movie_credits = movie_credits
         self.name = name
         self.profile = profile
+        self.known_for = known_for
 
     def __str__(self):
         if self.biography is None:
@@ -217,7 +220,11 @@ class Person(BaseModel):
     @classmethod
     def from_json(cls, json, image_config=None):
         json['movie_credits'] = {
-            Movie.from_json(movie) for movie in
+            Movie.from_json(movie, image_config) for movie in
             json.get('movie_credits', {}).get('cast', [])
+        } or None
+        json['known_for'] = {
+            Movie.from_json(movie, image_config)
+            for movie in json.get('known_for', [])
         } or None
         return super().from_json(json, image_config)

@@ -65,3 +65,9 @@ if token is not None and pytest.config.getoption('--runslow'):
             client,
         )
         assert any(person.name == 'Eric Idle' for person in overlap)
+
+    @pytest.mark.asyncio
+    async def test_get_random_person(client):
+        person = await client.get_random_popular_person()
+        assert hasattr(person, 'name')
+        assert hasattr(person, 'id_')

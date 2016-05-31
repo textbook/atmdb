@@ -143,3 +143,51 @@ async def test_find_person(client, token):
             'https://api.themoviedb.org/3/search/person'
             '?query=some+person&include_adult=False&api_key={}'.format(token),
         )
+
+
+@pytest.mark.asyncio
+async def test_get_random_actor_simple(client, token):
+    with mock.patch.object(TMDbClient, 'get_data') as _get_data:
+        _get_data.return_value = future_from({
+            'page': 1,
+            'results': [{'id': 1, 'name': 'Some Person'}],
+            'total_results': 1,
+            'total_pages': 1,
+        })
+
+        result = await client.get_random_popular_person(1)
+
+        assert result.name == 'Some Person'
+        _get_data.assert_called_once_with(
+            'https://api.themoviedb.org/3/person/popular'
+            '?page=1&api_key={}'.format(token),
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_random_actor_paged(client, token):
+    with mock.patch.object(TMDbClient, 'get_data') as _get_data, \
+            mock.patch('atmdb.client.random.randrange', return_value=15) as randrange:
+        first_page = future_from({
+            'page': 1,
+            'results': [{}] * 10,
+            'total_results': 20,
+            'total_pages': 2,
+        })
+        second_page = future_from({
+            'page': 2,
+            'results': ([{}] * 4) + [{'id': 1, 'name': 'Some Person'}, {}],
+            'total_results': 20,
+            'total_pages': 2,
+        })
+        _get_data.side_effect = [first_page, second_page]
+
+        result = await client.get_random_popular_person(1)
+
+        assert result.name == 'Some Person'
+        _get_data.assert_has_calls([
+            mock.call('https://api.themoviedb.org/3/person/popular'
+                      '?page=1&api_key={}'.format(token)),
+            mock.call('https://api.themoviedb.org/3/person/popular'
+                      '?page=2&api_key={}'.format(token)),
+        ])
