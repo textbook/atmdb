@@ -77,7 +77,9 @@ class TMDbClient(UrlParamMixin, Service):
                         await self._update_config()
                     return body
                 elif response.status == HTTPStatus.TOO_MANY_REQUESTS:
-                    timeout = self.calculate_timeout(response.headers)
+                    timeout = self.calculate_timeout(
+                        response.headers['Retry-After'],
+                    )
                     logger.warning(
                         'Request limit exceeded, waiting %s seconds',
                         timeout,

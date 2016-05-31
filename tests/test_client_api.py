@@ -29,14 +29,15 @@ def test_client_auth(client, token):
 
 
 def test_calculate_timeout_delta_seconds():
-    assert TMDbClient.calculate_timeout({'Retry-After': '120'}) == 120
+    assert TMDbClient.calculate_timeout('120') == 120
 
 
 def test_calculate_timeout_http_date():
     three_minutes_later = datetime.now(tz=timezone.utc) + timedelta(minutes=3)
     http_date = '%a, %d %b %Y %H:%M:%S %Z'
-    headers = {'Retry-After': three_minutes_later.strftime(http_date)}
-    assert 179 <= TMDbClient.calculate_timeout(headers) <= 181
+    assert 179 <= TMDbClient.calculate_timeout(
+        three_minutes_later.strftime(http_date),
+    ) <= 181
 
 
 @pytest.mark.asyncio

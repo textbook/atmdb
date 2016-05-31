@@ -62,8 +62,8 @@ class Service(metaclass=ABCMeta):
         ]).format(**params or {})
 
     @staticmethod
-    def calculate_timeout(headers):
-        """Extract request timeout from ``Retry-After`` header.
+    def calculate_timeout(http_date):
+        """Extract request timeout from e.g. ``Retry-After`` header.
 
         Notes:
           Per :rfc:`2616#section-14.37`, the ``Retry-After`` header can
@@ -71,18 +71,16 @@ class Service(metaclass=ABCMeta):
           function can handle either.
 
         Arguments:
-          headers (:py:class:`aiohttp.CIMultiDictProxy`): The response
-            headers.
+          http_date (:py:class:`str`): The date to parse.
 
         Returns:
           :py:class:`int`: The timeout, in seconds.
 
         """
-        after = headers['Retry-After']
         try:
-            return int(after)
+            return int(http_date)
         except ValueError:
-            date_after = parse(after)
+            date_after = parse(http_date)
         utc_now = datetime.now(tz=timezone.utc)
         return int((date_after - utc_now).total_seconds())
 
