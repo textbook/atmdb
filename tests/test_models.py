@@ -1,3 +1,4 @@
+from datetime import date
 from textwrap import dedent
 
 from atmdb.models import Movie, Person
@@ -20,9 +21,12 @@ def test_movie_model_from_json():
         credits=dict(
             cast=[{'name': name, 'id': 1}],
         ),
+        release_date='2012-05-08',
     ))
     assert movie.title == title
     assert movie.cast == {Person(id_=1, name=name)}
+    assert movie.release_date == date(2012, 5, 8)
+    assert movie.release_year == 2012
 
 
 def test_person_model():

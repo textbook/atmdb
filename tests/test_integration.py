@@ -32,6 +32,7 @@ if token is not None and pytest.config.getoption('--runslow'):
         movie = await client.get_movie(550)
         assert movie.title == 'Fight Club'
         assert movie.image_url == 'https://image.tmdb.org/t/p/w185/811DjJTon9gD6hZ8nCjSitaIXFQ.jpg'
+        assert movie.release_year == 1999
 
     @pytest.mark.asyncio
     async def test_movie_search_integration(client):

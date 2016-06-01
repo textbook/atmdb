@@ -1,4 +1,5 @@
 """Models representing TMDb resources."""
+from datetime import datetime
 import logging
 from textwrap import dedent
 
@@ -11,6 +12,10 @@ class BaseModel:
     Arguments:
       id_ (:py:class:`int`): The TMDb ID of the object.
       image_config (:py:class:`dict`): The API image configuration.
+      image_path (:py:class:`str`): The short path to the image.
+
+    Attributes:
+      image_url (:py:class:`str`): The fully-qualified image URL.
 
     """
 
@@ -122,6 +127,11 @@ class Movie(BaseModel):
       title (:py:class:`str`): The title of the movie.
       cast (:py:class:`set`, optional): The movie's cast.
       synopsis (:py:class:`str`, optional): A synopsis of the movie.
+      release_date (:py:class:`datetime.date`): The date of release.
+
+    Attributes:
+      release_year (:py:class:`int`) The year of release.
+      url (:py:class:`str`): The URL to the movies's TMDb page.
 
     """
 
@@ -132,18 +142,19 @@ class Movie(BaseModel):
     JSON_MAPPING = dict(
         cast=None,
         image_path='{}_path'.format(IMAGE_TYPE),
+        release_date=None,
         synopsis='overview',
         title='original_title',
         **BaseModel.JSON_MAPPING,
     )
 
-    def __init__(self, *, title, cast=None, poster=None, synopsis=None,
+    def __init__(self, *, title, cast=None, synopsis=None, release_date=None,
                  **kwargs):
         super().__init__(**kwargs)
         self.cast = cast
-        self.poster = poster
         self.synopsis = synopsis
         self.title = title
+        self.release_date = release_date
 
     def __str__(self):
         if self.synopsis is None:
@@ -160,12 +171,19 @@ class Movie(BaseModel):
     def url(self):
         return 'https://www.themoviedb.org/movie/{}'.format(self.id_)
 
+    @property
+    def release_year(self):
+        return None if self.release_date is None else self.release_date.year
+
     @classmethod
     def from_json(cls, json, image_config=None):
         json['cast'] = {
             Person.from_json(person, image_config) for person in
             json.get('credits', {}).get('cast', [])
         } or None
+        release = json.get('release_date')
+        json['release_date'] = (None if not release else
+                                datetime.strptime(release, '%Y-%m-%d').date())
         return super().from_json(json, image_config)
 
 
@@ -177,6 +195,11 @@ class Person(BaseModel):
       movie_credits (:py:class:`set`, optional): The person's movie
         credits.
       biography (:py:class:`str`, optional): A synopsis of the movie.
+      known_for (:py:class:`list`, optional): A list of the three
+        movies the person is best known for.
+
+    Attributes:
+      url (:py:class:`str`): The URL to the person's TMDb profile.
 
     """
 
@@ -193,13 +216,12 @@ class Person(BaseModel):
         **BaseModel.JSON_MAPPING,
     )
 
-    def __init__(self, name, biography=None, movie_credits=None, profile=None,
-                 known_for=None, **kwargs):
+    def __init__(self, name, biography=None, movie_credits=None, known_for=None,
+                 **kwargs):
         super().__init__(**kwargs)
         self.biography = biography
         self.movie_credits = movie_credits
         self.name = name
-        self.profile = profile
         self.known_for = known_for
 
     def __str__(self):
