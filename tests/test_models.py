@@ -45,10 +45,13 @@ def test_person_model_from_json():
         name=name,
         movie_credits=dict(
             cast=[{'original_title': title, 'id': 1}],
-        )
+        ),
+        birthday='1970-01-01',
     ))
     assert person.name == name
     assert person.movie_credits == {Movie(id_=1, title=title)}
+    assert person.birthday == date(1970, 1, 1)
+    assert person.age == date.today().year - 1970
 
 
 def test_movie_model_contains_person():

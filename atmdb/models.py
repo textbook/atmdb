@@ -1,7 +1,9 @@
 """Models representing TMDb resources."""
-from datetime import datetime
+from datetime import date, datetime
 import logging
 from textwrap import dedent
+
+from dateutil.relativedelta import relativedelta
 
 logger = logging.getLogger(__name__)
 
@@ -197,8 +199,11 @@ class Person(BaseModel):
       biography (:py:class:`str`, optional): A synopsis of the movie.
       known_for (:py:class:`list`, optional): A list of the three
         movies the person is best known for.
+      birthday (:py:class:`datetime.date`, optional): The person's date
+        of birth.
 
     Attributes:
+      age (:py:class:`int`): The person's age, in years.
       url (:py:class:`str`): The URL to the person's TMDb profile.
 
     """
@@ -209,6 +214,7 @@ class Person(BaseModel):
 
     JSON_MAPPING = dict(
         biography=None,
+        birthday=None,
         image_path='{}_path'.format(IMAGE_TYPE),
         movie_credits=None,
         known_for=None,
@@ -217,12 +223,13 @@ class Person(BaseModel):
     )
 
     def __init__(self, name, biography=None, movie_credits=None, known_for=None,
-                 **kwargs):
+                 birthday=None, **kwargs):
         super().__init__(**kwargs)
         self.biography = biography
         self.movie_credits = movie_credits
         self.name = name
         self.known_for = known_for
+        self.birthday = birthday
 
     def __str__(self):
         if self.biography is None:
@@ -234,6 +241,12 @@ class Person(BaseModel):
 
         For more information see: {0.url}
         """).strip().format(self)
+
+    @property
+    def age(self):
+        if self.birthday is None:
+            return
+        return relativedelta(date.today(), self.birthday).years
 
     @property
     def url(self):
@@ -249,4 +262,7 @@ class Person(BaseModel):
             Movie.from_json(movie, image_config)
             for movie in json.get('known_for', [])
         } or None
+        birthday = json.get('birthday')
+        json['birthday'] = (None if not birthday else
+                            datetime.strptime(birthday, '%Y-%m-%d').date())
         return super().from_json(json, image_config)

@@ -1,3 +1,4 @@
+from datetime import date
 from os import getenv
 
 import pytest
@@ -44,6 +45,9 @@ if token is not None and pytest.config.getoption('--runslow'):
         person = await client.get_person(287)
         assert person.name == 'Brad Pitt'
         assert person.image_url == 'https://image.tmdb.org/t/p/w185/kc3M04QQAuZ9woUvH3Ju5T7ZqG5.jpg'
+        assert person.birthday == date(1963, 12, 18)
+        today = date.today()
+        assert person.age == today.year - 1963 - ((today.month, today.day) < (12, 18))
 
     @pytest.mark.asyncio
     async def test_person_search_integration(client):
