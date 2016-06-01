@@ -3,7 +3,6 @@ aTMDb package
 
 .. automodule:: atmdb
     :members:
-    :undoc-members:
     :show-inheritance:
 
 ``client`` module
@@ -11,7 +10,6 @@ aTMDb package
 
 .. automodule:: atmdb.client
     :members:
-    :undoc-members:
     :show-inheritance:
 
 ``core`` module
@@ -19,7 +17,6 @@ aTMDb package
 
 .. automodule:: atmdb.core
     :members:
-    :undoc-members:
     :show-inheritance:
 
 ``models`` module
@@ -27,7 +24,6 @@ aTMDb package
 
 .. automodule:: atmdb.models
     :members:
-    :undoc-members:
     :show-inheritance:
 
 ``utils`` module
@@ -35,5 +31,4 @@ aTMDb package
 
 .. automodule:: atmdb.utils
     :members:
-    :undoc-members:
     :show-inheritance:

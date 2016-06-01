@@ -13,7 +13,6 @@ class BaseModel:
 
     Arguments:
       id_ (:py:class:`int`): The TMDb ID of the object.
-      image_config (:py:class:`dict`): The API image configuration.
       image_path (:py:class:`str`): The short path to the image.
 
     Attributes:
@@ -31,6 +30,7 @@ class BaseModel:
     """:py:class:`dict`: The mapping between JSON keys and attributes."""
 
     image_config = None
+    """:py:class:`dict`: The API image configuration."""
 
     def __init__(self, *, id_, image_path=None, **_):
         self.id_ = id_
@@ -60,7 +60,6 @@ class BaseModel:
 
     @property
     def image_url(self):
-        """The fully-qualified image URL."""
         return self._create_image_url(self.image_path, self.IMAGE_TYPE, 200)
 
     def _create_image_url(self, file_path, type_, target_size):
