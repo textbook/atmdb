@@ -261,6 +261,7 @@ class Person(BaseModel):
         json['known_for'] = {
             Movie.from_json(movie, image_config)
             for movie in json.get('known_for', [])
+            if movie.get('media_type') == 'movie'
         } or None
         birthday = json.get('birthday')
         json['birthday'] = (None if not birthday else
