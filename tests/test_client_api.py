@@ -148,20 +148,26 @@ async def test_find_person(client, token):
 @pytest.mark.asyncio
 async def test_get_random_actor_simple(client, token):
     with mock.patch.object(TMDbClient, 'get_data') as _get_data:
-        _get_data.return_value = future_from({
-            'page': 1,
-            'results': [{'id': 1, 'name': 'Some Person'}],
-            'total_results': 1,
-            'total_pages': 1,
-        })
+        _get_data.side_effect = [
+            future_from({
+                'page': 1,
+                'results': [{'id': 1, 'name': 'Some Person'}],
+                'total_results': 1,
+                'total_pages': 1,
+            }),
+            future_from({'biography': 'extra stuff'}),
+        ]
 
         result = await client.get_random_popular_person(1)
 
         assert result.name == 'Some Person'
-        _get_data.assert_called_once_with(
-            'https://api.themoviedb.org/3/person/popular'
-            '?page=1&api_key={}'.format(token),
-        )
+        assert result.biography == 'extra stuff'
+        _get_data.assert_has_calls([
+            mock.call('https://api.themoviedb.org/3/person/popular'
+                      '?page=1&api_key={}'.format(token)),
+            mock.call('https://api.themoviedb.org/3/person/1'
+                      '?api_key={}'.format(token)),
+        ])
 
 
 @pytest.mark.asyncio
@@ -180,14 +186,18 @@ async def test_get_random_actor_paged(client, token):
             'total_results': 20,
             'total_pages': 2,
         })
-        _get_data.side_effect = [first_page, second_page]
+        person = future_from({'biography': 'extra stuff'})
+        _get_data.side_effect = [first_page, second_page, person]
 
         result = await client.get_random_popular_person(1)
 
         assert result.name == 'Some Person'
+        assert result.biography == 'extra stuff'
         _get_data.assert_has_calls([
             mock.call('https://api.themoviedb.org/3/person/popular'
                       '?page=1&api_key={}'.format(token)),
             mock.call('https://api.themoviedb.org/3/person/popular'
                       '?page=2&api_key={}'.format(token)),
+            mock.call('https://api.themoviedb.org/3/person/1'
+                      '?api_key={}'.format(token)),
         ])

@@ -170,22 +170,38 @@ class TMDbClient(UrlParamMixin, Service):
           :py:class:`~.Person`: The requested person.
 
         """
+        data = await self._get_person_json(
+            id_,
+            OrderedDict(append_to_response='movie_credits')
+        )
+        return Person.from_json(data, self.config['data'].get('images'))
+
+    async def _get_person_json(self, id_, url_params=None):
+        """Retrieve raw person JSON by ID.
+
+        Arguments:
+          id_ (:py:class:`int`): The person's TMDb ID.
+          url_params (:py:class:`dict`): Any additional URL parameters.
+
+        Returns:
+          :py:class:`dict`: The JSON data.
+
+        """
         url = self.url_builder(
             'person/{person_id}',
             dict(person_id=id_),
-            url_params=OrderedDict(append_to_response='movie_credits'),
+            url_params=url_params or OrderedDict(),
         )
         data = await self.get_data(url)
-        if data is None:
-            return
-        return Person.from_json(data, self.config['data'].get('images'))
+        return data
 
     async def get_random_popular_person(self, limit=500):
         """Randomly select a popular person.
 
         Notes:
-          May require two API calls if the randomly-selected index
-          isn't within the first page of required data.
+          Requires at least two API calls. May require three API calls
+          if the randomly-selected index isn't within the first page of
+          required data.
 
         Arguments:
           limit (:py:class:`int`, optional): How many of the most
@@ -206,10 +222,10 @@ class TMDbClient(UrlParamMixin, Service):
             data = await self._get_popular_people_page(page)
         if data is None:
             return
-        return Person.from_json(
-            data['results'][index],
-            self.config['data'].get('images'),
-        )
+        json_data = data['results'][index]
+        details = await self._get_person_json(json_data['id'])
+        details.update(**json_data)
+        return Person.from_json(details, self.config['data'].get('images'))
 
     async def _get_popular_people_page(self, page=1):
         """Get a specific page of popular person data.
