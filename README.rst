@@ -95,12 +95,15 @@ level of abstraction, for example::
 Documentation
 -------------
 
-Additional documentation is available on `PythonHosted`_.
+Additional documentation is available on `PythonHosted`_. An overview of the
+project status is shown on its `dashboard`_.
 
 .. _API FAQ:
     https://www.themoviedb.org/faq/api
 .. _asyncio:
     http://aiohttp.readthedocs.io/
+.. _dashboard:
+    https://atmdb-randy-campimetry.cfapps.pez.pivotal.io
 .. _PyPI:
     https://pypi.python.org/pypi/atmdb
 .. _PythonHosted:
