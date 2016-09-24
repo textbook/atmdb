@@ -2,4 +2,4 @@
 from .client import TMDbClient
 
 __author__ = 'Jonathan Sharpe'
-__version__ = '0.2.2'
+__version__ = '0.2.3'

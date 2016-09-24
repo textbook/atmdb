@@ -200,9 +200,13 @@ class Person(BaseModel):
         movies the person is best known for.
       birthday (:py:class:`datetime.date`, optional): The person's date
         of birth.
+      birthday (:py:class:`datetime.date`, optional): The person's date
+        of death.
 
     Attributes:
-      age (:py:class:`int`): The person's age, in years.
+      age (:py:class:`int`): The person's age, in years (if they have
+        died, their age at the time of their death).
+      alive (:py:class:`bool`): Whether the person is currently alive.
       url (:py:class:`str`): The URL to the person's TMDb profile.
 
     """
@@ -214,6 +218,7 @@ class Person(BaseModel):
     JSON_MAPPING = dict(
         biography=None,
         birthday=None,
+        deathday=None,
         image_path='{}_path'.format(IMAGE_TYPE),
         movie_credits=None,
         known_for=None,
@@ -222,13 +227,14 @@ class Person(BaseModel):
     )
 
     def __init__(self, name, biography=None, movie_credits=None, known_for=None,
-                 birthday=None, **kwargs):
+                 birthday=None, deathday=None, **kwargs):
         super().__init__(**kwargs)
         self.biography = biography
         self.movie_credits = movie_credits
         self.name = name
         self.known_for = known_for
         self.birthday = birthday
+        self.deathday = deathday
 
     def __str__(self):
         if self.biography is None:
@@ -245,7 +251,13 @@ class Person(BaseModel):
     def age(self):
         if self.birthday is None:
             return
-        return relativedelta(date.today(), self.birthday).years
+        if self.deathday is None:
+            return relativedelta(date.today(), self.birthday).years
+        return relativedelta(self.deathday, self.birthday).years
+
+    @property
+    def alive(self):
+        return self.deathday is None
 
     @property
     def url(self):
@@ -262,7 +274,12 @@ class Person(BaseModel):
             for movie in json.get('known_for', [])
             if movie.get('media_type') == 'movie'
         } or None
-        birthday = json.get('birthday')
-        json['birthday'] = (None if not birthday else
-                            datetime.strptime(birthday, '%Y-%m-%d').date())
+        json['birthday'] = cls.extract_date(json.get('birthday'))
+        json['deathday'] = cls.extract_date(json.get('deathday'))
         return super().from_json(json, image_config)
+
+    @staticmethod
+    def extract_date(date_str):
+        if not date_str:
+            return
+        return datetime.strptime(date_str, '%Y-%m-%d').date()

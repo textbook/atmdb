@@ -78,8 +78,8 @@ def test_movie_model_full_str():
 
 
 def test_person_model_full_str():
-    movie = Person(id_=123, name='Some Person', biography='An actor, I guess.')
-    assert str(movie) == dedent("""
+    person = Person(id_=123, name='Some Person', biography='An actor, I guess.')
+    assert str(person) == dedent("""
     *Some Person*
 
     An actor, I guess.
@@ -96,7 +96,18 @@ def test_movie_model_short_str():
 
 
 def test_person_model_short_str():
-    movie = Person(id_=123, name='Some Person')
-    assert str(movie) == dedent("""
+    person = Person(id_=123, name='Some Person')
+    assert str(person) == dedent("""
     Some Person [https://www.themoviedb.org/person/123]
     """).strip()
+
+
+def test_person_model_handles_deceased_actors():
+    person = Person.from_json({
+        'id': 123,
+        'name': 'John Actor',
+        'birthday': '1940-05-06',
+        'deathday': '1990-08-07'
+    })
+    assert not person.alive
+    assert person.age == 50
