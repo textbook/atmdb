@@ -1,4 +1,4 @@
-aiohttp==0.21.5
+aiohttp==3.7.4
 alabaster==0.7.7
 astroid==1.4.5
 asynctest==0.7.1
